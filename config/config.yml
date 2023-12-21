@@ -1,0 +1,14 @@
+bot:
+  token: "6317420053:AAEysLMv9HOg1I0aJeYhbmPC1TS6XPrvCIs"
+  admin_id: 987786759
+
+db:
+  host: "localhost"
+  port: "5432"
+  name: "tgbot"
+  user: "postgres"
+  password: ""
+  ssl_mode: "false"
+
+redis:
+  host: "localhost:6379"
