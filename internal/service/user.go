@@ -14,23 +14,14 @@ func NewUserService(repo repository.UserRepository) *UserService {
 	return &UserService{repo: repo}
 }
 
-func (s *UserService) CreateUser(ctx context.Context, input models.User) (int, error) {
-	user, err := s.repo.GetByID(ctx, input.ID)
+func (s *UserService) CreateUser(ctx context.Context, input models.User) error {
+	_, err := s.repo.Create(ctx, input)
 
 	if err != nil {
+		return err
 	}
 
-	var id int
-
-	if user.ID == 0 {
-		id, err = s.repo.Create(ctx, input)
-
-		if err != nil {
-			return 0, err
-		}
-	}
-
-	return id, nil
+	return nil
 }
 
 func (s *UserService) GetByID(ctx context.Context, id int) (models.User, error) {

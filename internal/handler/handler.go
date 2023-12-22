@@ -11,8 +11,11 @@ import (
 )
 
 var (
-	InputSG        = fsm.NewStateGroup("book")
-	InputTimeState = InputSG.New("time")
+	InputRoomGroup = fsm.NewStateGroup("book")
+	InputTimeState = InputRoomGroup.New("time")
+
+	InputRegGroup  = fsm.NewStateGroup("reg")
+	InputFirstName = InputRegGroup.New("firstname")
 )
 
 type Handler struct {
@@ -32,9 +35,13 @@ func (h *Handler) Register() {
 
 	manager := fsm.NewManager(h.b, nil, storage, nil)
 
-	h.b.Handle("/start", h.Hello)
+	manager.Bind("/start", fsm.DefaultState, h.Start)
+	manager.Bind(tele.OnText, InputFirstName, h.RegisterUser)
+
 	h.b.Handle(&keyboard.BtnVerify, h.VerifyUser)
 	h.b.Handle(&keyboard.BtnBookRooms, h.SelectRoom)
+	h.b.Handle(&keyboard.BtnGetBooks, h.GetBooks)
+	h.b.Handle(&keyboard.BtnCancelBook, h.CancelBook)
 
 	manager.Bind(&keyboard.BtnRoomOne, fsm.DefaultState, h.SelectTime)
 	manager.Bind(&keyboard.BtnRoomTwo, fsm.DefaultState, h.SelectTime)

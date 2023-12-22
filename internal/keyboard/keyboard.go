@@ -8,20 +8,22 @@ import (
 )
 
 var (
-	menu         = &tele.ReplyMarkup{ResizeKeyboard: true}
-	BtnBookRooms = menu.Text("Забронировать")
-	rooms        = &tele.ReplyMarkup{ResizeKeyboard: true}
-	BtnRoomOne   = rooms.Data("Комната 1", "select-room", "1")
-	BtnRoomTwo   = rooms.Data("Комната 2", "select-room", "2")
-	verify       = &tele.ReplyMarkup{}
-	BtnVerify    = verify.Data("Подтвердить", "user-verify")
-	book         = &tele.ReplyMarkup{ResizeKeyboard: true}
-	BtnTime      = book.Data("", "book-room")
+	menu          = &tele.ReplyMarkup{ResizeKeyboard: true}
+	BtnBookRooms  = menu.Text("Забронировать")
+	BtnGetBooks   = menu.Text("Мои брони")
+	rooms         = &tele.ReplyMarkup{ResizeKeyboard: true}
+	BtnRoomOne    = rooms.Data("Комната 1", "select-room", "1")
+	BtnRoomTwo    = rooms.Data("Комната 2", "select-room", "2")
+	verify        = &tele.ReplyMarkup{}
+	BtnVerify     = verify.Data("Подтвердить", "user-verify")
+	book          = &tele.ReplyMarkup{ResizeKeyboard: true}
+	BtnTime       = book.Data("", "book-room")
+	BtnCancelBook = book.Data("Отменить", "book-cancel")
 )
 
 func MenuButton() *tele.ReplyMarkup {
 	menu.Reply(
-		menu.Row(BtnBookRooms),
+		menu.Row(BtnBookRooms, BtnGetBooks),
 	)
 
 	return menu
@@ -48,12 +50,20 @@ func BookButtons() *tele.ReplyMarkup {
 
 	btns := make([]tele.Btn, 0)
 
-	for i := currentTime.Hour(); i < 20; i++ {
+	for i := currentTime.Hour() + 1; i < 20; i++ {
 		BtnTime.Text = fmt.Sprintf("%02d:00", i)
 		BtnTime.Data = strconv.Itoa(i)
 		btns = append(btns, BtnTime)
 	}
 	book.Inline(book.Row(btns...))
+
+	return book
+}
+
+func CancelBookButton(roomId, time string) *tele.ReplyMarkup {
+	BtnCancelBook.Data = fmt.Sprintf("%s:%s", roomId, time)
+
+	book.Inline(book.Row(BtnCancelBook))
 
 	return book
 }

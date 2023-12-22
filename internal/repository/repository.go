@@ -29,5 +29,7 @@ type UserRepository interface {
 
 type RoomRepository interface {
 	SetBook(ctx context.Context, input models.Book, seconds int) error
-	GetBook(ctx context.Context, input models.Book) (bool, error)
+	GetBook(ctx context.Context, room, hour string) (string, error)
+	GetBooksByID(ctx context.Context, userID int) ([]models.Book, error)
+	DeleteBook(ctx context.Context, roomId, hour string, userID int) error
 }

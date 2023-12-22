@@ -39,6 +39,7 @@ func main() {
 	handlers.Register()
 
 	b.Use(middleware.Logger())
+	b.Use(middleware.AutoRespond())
 
 	log.Info("bot starting...")
 

@@ -5,35 +5,48 @@ import (
 	"fmt"
 	"github.com/blazee5/tgbot/internal/keyboard"
 	"github.com/blazee5/tgbot/internal/models"
+	"github.com/vitaliy-ukiru/fsm-telebot"
 	tele "gopkg.in/telebot.v3"
 	"strconv"
 )
 
-func (h *Handler) Hello(c tele.Context) error {
-	id, err := h.service.User.CreateUser(context.Background(), models.User{
+func (h *Handler) Start(c tele.Context, state fsm.Context) error {
+	_, err := h.service.User.GetByID(context.Background(), int(c.Sender().ID))
+
+	if err != nil {
+		go state.Set(InputFirstName)
+		return c.Send("Напишите ваше имя")
+	}
+
+	return c.Send("Добро пожаловать", keyboard.MenuButton())
+}
+
+func (h *Handler) RegisterUser(c tele.Context, state fsm.Context) error {
+	defer state.Finish(true)
+
+	err := h.service.User.CreateUser(context.Background(), models.User{
 		ID:        int(c.Sender().ID),
-		FirstName: c.Sender().FirstName,
+		FirstName: c.Text(),
 		LastName:  c.Sender().LastName,
 		Username:  c.Sender().Username,
 	})
 
 	if err != nil {
 		h.log.Infof("error while create user: %v", err)
-		return c.Send("Произошла ошибка, попробуйте снова")
+		return c.Send("error")
 	}
+
 	userID := strconv.Itoa(int(c.Sender().ID))
 
-	if id != 0 {
-		_, err = h.b.Send(&tele.User{ID: int64(h.cfg.Bot.AdminID)},
-			fmt.Sprintf("Новый пользователь @%s", c.Sender().Username), keyboard.VerifyButton(userID))
+	_, err = h.b.Send(&tele.User{ID: int64(h.cfg.Bot.AdminID)},
+		fmt.Sprintf("Новый пользователь @%s", c.Sender().Username), keyboard.VerifyButton(userID))
 
-		if err != nil {
-			h.log.Infof("error while send message to admin: %v", err)
-			return nil
-		}
+	if err != nil {
+		h.log.Infof("error while send message to admin: %v", err)
+		return err
 	}
 
-	return c.Send("hello", keyboard.MenuButton())
+	return c.Send("Успешно")
 }
 
 func (h *Handler) VerifyUser(c tele.Context) error {

@@ -13,13 +13,15 @@ type Service struct {
 }
 
 type User interface {
-	CreateUser(ctx context.Context, input models.User) (int, error)
+	CreateUser(ctx context.Context, input models.User) error
 	GetByID(ctx context.Context, id int) (models.User, error)
 	VerifyUser(ctx context.Context, id int) error
 }
 
 type Room interface {
-	BookRoom(ctx context.Context, input models.Book) error
+	BookRoom(ctx context.Context, userID int, room, hour string) (string, error)
+	GetBooksByID(ctx context.Context, userID int) ([]models.Book, error)
+	CancelBook(ctx context.Context, roomID, hour string, userID int) error
 }
 
 func NewService(log *zap.SugaredLogger, repo *repository.Repository) *Service {
