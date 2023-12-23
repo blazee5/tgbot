@@ -13,6 +13,7 @@ import (
 var (
 	InputRoomGroup = fsm.NewStateGroup("book")
 	InputTimeState = InputRoomGroup.New("time")
+	InputBookState = InputRoomGroup.New("finish")
 
 	InputRegGroup  = fsm.NewStateGroup("reg")
 	InputFirstName = InputRegGroup.New("firstname")
@@ -39,11 +40,12 @@ func (h *Handler) Register() {
 	manager.Bind(tele.OnText, InputFirstName, h.RegisterUser)
 
 	h.b.Handle(&keyboard.BtnVerify, h.VerifyUser)
-	h.b.Handle(&keyboard.BtnBookRooms, h.SelectRoom)
 	h.b.Handle(&keyboard.BtnGetBooks, h.GetBooks)
 	h.b.Handle(&keyboard.BtnCancelBook, h.CancelBook)
 
-	manager.Bind(&keyboard.BtnRoomOne, fsm.DefaultState, h.SelectTime)
-	manager.Bind(&keyboard.BtnRoomTwo, fsm.DefaultState, h.SelectTime)
-	manager.Bind(&keyboard.BtnTime, InputTimeState, h.BookRoom)
+	manager.Bind(&keyboard.BtnBookRooms, fsm.DefaultState, h.SelectRoom)
+	manager.Bind(&keyboard.BtnBack, fsm.AnyState, h.SelectRoom)
+	manager.Bind(&keyboard.BtnRoomOne, InputTimeState, h.SelectTime)
+	manager.Bind(&keyboard.BtnRoomTwo, InputTimeState, h.SelectTime)
+	manager.Bind(&keyboard.BtnTime, InputBookState, h.BookRoom)
 }

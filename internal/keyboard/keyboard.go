@@ -21,6 +21,7 @@ var (
 	book          = &tele.ReplyMarkup{ResizeKeyboard: true}
 	BtnTime       = book.Data("", "book-room")
 	BtnCancelBook = book.Data("Отменить", "book-cancel")
+	BtnBack       = book.Data("Назад", "back")
 )
 
 func MenuButton() *tele.ReplyMarkup {
@@ -56,7 +57,7 @@ func BookButtons(roomId string, service service.Room) (*tele.ReplyMarkup, error)
 
 	btns := make([]tele.Btn, 0)
 
-	for i := currentHour + 1; i < 20; i++ {
+	for i := currentHour + 1; i < 26; i++ {
 		username, err := service.GetBook(context.Background(), roomId, strconv.Itoa(i))
 
 		if err != nil {
@@ -71,7 +72,7 @@ func BookButtons(roomId string, service service.Room) (*tele.ReplyMarkup, error)
 		BtnTime.Data = strconv.Itoa(i)
 		btns = append(btns, BtnTime)
 	}
-	book.Inline(book.Row(btns...))
+	book.Inline(book.Row(btns...), book.Row(BtnBack))
 
 	return book, nil
 }

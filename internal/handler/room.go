@@ -38,7 +38,14 @@ func (h *Handler) GetBooks(c tele.Context) error {
 	return nil
 }
 
-func (h *Handler) SelectRoom(c tele.Context) error {
+func (h *Handler) SelectRoom(c tele.Context, state fsm.Context) error {
+	state.Finish(false)
+	err := c.Delete()
+
+	if err != nil {
+		return err
+	}
+
 	user, err := h.service.User.GetByID(context.Background(), int(c.Sender().ID))
 
 	if err != nil {
@@ -50,6 +57,8 @@ func (h *Handler) SelectRoom(c tele.Context) error {
 		return c.Send("Ваш аккаунт не подтвержден, ожидайте")
 	}
 
+	go state.Set(InputTimeState)
+
 	return c.Send("Выберите комнату", keyboard.RoomsButton())
 }
 
@@ -57,7 +66,7 @@ func (h *Handler) SelectTime(c tele.Context, state fsm.Context) error {
 	roomID := c.Callback().Data
 
 	go state.Update("room", roomID)
-	go state.Set(InputTimeState)
+	go state.Set(InputBookState)
 
 	err := c.Delete()
 
@@ -73,6 +82,7 @@ func (h *Handler) SelectTime(c tele.Context, state fsm.Context) error {
 	}
 
 	if len(timeBtns.InlineKeyboard[0]) == 0 {
+		defer state.Finish(true)
 		return c.Send("На сегодня вся комната занята(")
 	}
 
