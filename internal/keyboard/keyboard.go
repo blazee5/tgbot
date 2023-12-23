@@ -1,7 +1,9 @@
 package keyboard
 
 import (
+	"context"
 	"fmt"
+	"github.com/blazee5/tgbot/internal/service"
 	tele "gopkg.in/telebot.v3"
 	"strconv"
 	"time"
@@ -45,19 +47,33 @@ func VerifyButton(id string) *tele.ReplyMarkup {
 	return verify
 }
 
-func BookButtons() *tele.ReplyMarkup {
-	currentTime := time.Now()
+func BookButtons(roomId string, service service.Room) (*tele.ReplyMarkup, error) {
+	currentHour := time.Now().Hour()
+
+	if currentHour < 10 {
+		currentHour = 10
+	}
 
 	btns := make([]tele.Btn, 0)
 
-	for i := currentTime.Hour() + 1; i < 20; i++ {
+	for i := currentHour + 1; i < 20; i++ {
+		username, err := service.GetBook(context.Background(), roomId, strconv.Itoa(i))
+
+		if err != nil {
+			return nil, err
+		}
+
+		if username != "" {
+			continue
+		}
+
 		BtnTime.Text = fmt.Sprintf("%02d:00", i)
 		BtnTime.Data = strconv.Itoa(i)
 		btns = append(btns, BtnTime)
 	}
 	book.Inline(book.Row(btns...))
 
-	return book
+	return book, nil
 }
 
 func CancelBookButton(roomId, time string) *tele.ReplyMarkup {

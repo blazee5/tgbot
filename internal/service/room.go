@@ -21,6 +21,10 @@ func (s *RoomService) GetBooksByID(ctx context.Context, userID int) ([]models.Bo
 	return s.repo.RoomRepository.GetBooksByID(ctx, userID)
 }
 
+func (s *RoomService) GetBook(ctx context.Context, room, hour string) (string, error) {
+	return s.repo.GetBook(ctx, room, hour)
+}
+
 func (s *RoomService) BookRoom(ctx context.Context, userID int, room, hour string) (string, error) {
 	username, err := s.repo.RoomRepository.GetBook(ctx, room, hour)
 

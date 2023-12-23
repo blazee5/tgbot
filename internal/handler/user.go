@@ -46,7 +46,7 @@ func (h *Handler) RegisterUser(c tele.Context, state fsm.Context) error {
 		return err
 	}
 
-	return c.Send("Успешно")
+	return c.Send("Добро пожаловать", keyboard.MenuButton())
 }
 
 func (h *Handler) VerifyUser(c tele.Context) error {

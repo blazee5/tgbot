@@ -54,7 +54,9 @@ func (h *Handler) SelectRoom(c tele.Context) error {
 }
 
 func (h *Handler) SelectTime(c tele.Context, state fsm.Context) error {
-	go state.Update("room", c.Callback().Data)
+	roomID := c.Callback().Data
+
+	go state.Update("room", roomID)
 	go state.Set(InputTimeState)
 
 	err := c.Delete()
@@ -63,7 +65,18 @@ func (h *Handler) SelectTime(c tele.Context, state fsm.Context) error {
 		return err
 	}
 
-	return c.Send("Выберите время", keyboard.BookButtons())
+	timeBtns, err := keyboard.BookButtons(roomID, h.service.Room)
+
+	if err != nil {
+		h.log.Infof("error while get time buttons: %v", err)
+		return err
+	}
+
+	if len(timeBtns.InlineKeyboard[0]) == 0 {
+		return c.Send("На сегодня вся комната занята(")
+	}
+
+	return c.Send("Выберите время", timeBtns)
 }
 
 func (h *Handler) BookRoom(c tele.Context, state fsm.Context) error {
@@ -85,6 +98,12 @@ func (h *Handler) BookRoom(c tele.Context, state fsm.Context) error {
 		return c.Send("Произошла ошибка")
 	}
 
+	err = c.Delete()
+
+	if err != nil {
+		return err
+	}
+
 	return c.Send("Комната успешно забронирована")
 }
 
@@ -98,6 +117,12 @@ func (h *Handler) CancelBook(c tele.Context) error {
 	if err != nil {
 		h.log.Infof("error while cancel book: %v", err)
 		return c.Send("Произошла ошибка")
+	}
+
+	err = c.Delete()
+
+	if err != nil {
+		return err
 	}
 
 	return c.Send("Бронь успешно отменена")

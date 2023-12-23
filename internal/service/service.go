@@ -20,6 +20,7 @@ type User interface {
 
 type Room interface {
 	BookRoom(ctx context.Context, userID int, room, hour string) (string, error)
+	GetBook(ctx context.Context, room, hour string) (string, error)
 	GetBooksByID(ctx context.Context, userID int) ([]models.Book, error)
 	CancelBook(ctx context.Context, roomID, hour string, userID int) error
 }
