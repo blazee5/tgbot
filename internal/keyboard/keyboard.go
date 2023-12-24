@@ -57,7 +57,7 @@ func BookButtons(roomId string, service service.Room) (*tele.ReplyMarkup, error)
 
 	btns := make([]tele.Btn, 0)
 
-	for i := currentHour + 1; i < 26; i++ {
+	for i := currentHour + 1; i < 20; i++ {
 		username, err := service.GetBook(context.Background(), roomId, strconv.Itoa(i))
 
 		if err != nil {
